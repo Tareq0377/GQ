@@ -5,6 +5,7 @@ import Quiz from './pages/Quiz';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ProtectedRoute from "./components/ProtectedRoute";
+import Result from './pages/Result';
 
 function App() {
   return (
@@ -18,6 +19,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Quiz />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/result"
+          element={
+            <ProtectedRoute>
+              <Result />
             </ProtectedRoute>
           }
         />
