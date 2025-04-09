@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-
+import Input from '../components/Input'
 
 function Login() {
   const [form, setForm] = useState({ username: '', password: '' });
@@ -29,7 +29,7 @@ function Login() {
 
         {/* Username/Password Form */}
         <form onSubmit={handleFormLogin} className="space-y-4">
-          <div>
+          {/* <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
             <input
               type="text"
@@ -40,8 +40,9 @@ function Login() {
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             />
-          </div>
-          <div>
+          </div> */}
+          <Input label={'username'} type={'text'} name={'username'} id={'username'} value={form.username} onChange={handleChange} required={true}/>
+          {/* <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               type="password"
@@ -52,7 +53,8 @@ function Login() {
               className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               required
             />
-          </div>
+          </div> */}
+          <Input label={'password'} type={'text'} name={'password'} id={'password'} value={form.password} onChange={handleChange} required={true}/>
           <button
             type="submit"
             className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
