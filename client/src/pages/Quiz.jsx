@@ -73,12 +73,34 @@ export default function QuizPage() {
     if (step + 1 < totalQuestions) {
       setStep(step + 1);
     } else {
-      setShowConfirmation(true);
+      localStorage.removeItem("quizProgress");
+      navigate("/review", {
+        state: {
+          responses,
+          score,
+          answeredCount,
+          totalQuestions,
+          allQuestions: [...personalQuestions, ...likertQuestions],
+        },
+      });
     }
   };
 
   const handlePrev = () => {
     if (step > 0) setStep(step - 1);
+  };
+
+  const handleReset = () => {
+    localStorage.removeItem("quizProgress");
+    setStarted(false);
+    setStep(0);
+    setResponses({});
+    setScore(0);
+    setAnsweredCount(0);
+    setFeedback("");
+    setError("");
+    setShowConfirmation(false);
+    setIsSubmitting(false);
   };
 
   if (!started && initialProgress) {
@@ -177,6 +199,15 @@ export default function QuizPage() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-50 to-purple-50 py-10 px-4 flex flex-col items-center">
       <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-8 md:p-10 space-y-6">
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={handleReset}
+            className="text-sm text-red-500 hover:underline hover:text-red-700"
+          >
+          Reset Quiz
+          </button>
+        </div>
+
         <QuestionBlock
           current={current}
           response={responses[current.id]}
