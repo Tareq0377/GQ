@@ -1,55 +1,88 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import NavigationButtons from "../components/NavigationButtons";
+import QuestionBlock from "../components/QuestionBlock";
+import ProgressBar from "../components/ProgressBar";
+import {
+  personalQuestions,
+  likertQuestions,
+  likertOptions,
+  positiveFeedbacks,
+} from "../data/Quizdata";
 
-const quizQuestions = [
-  // Personal info questions
-  { id: "name", type: "text", label: "What is your name?" },
-  { id: "email", type: "email", label: "What is your email address?" },
-  { id: "region", type: "text", label: "Which region or state do you live in?" },
+export default function QuizPage() {
+  const savedProgress = localStorage.getItem("quizProgress");
+  const initialProgress = savedProgress ? JSON.parse(savedProgress) : null;
 
-  // Likert scale questions (examples)
-  {
-    id: "q1",
-    type: "likert",
-    question: "I feel confident talking about end-of-life wishes.",
-  },
-  {
-    id: "q2",
-    type: "likert",
-    question: "I have shared my end-of-life preferences with a loved one.",
-  },
-  {
-    id: "q3",
-    type: "likert",
-    question: "I am aware of legal documents like advance care directives.",
-  },
-];
+  const [step, setStep] = useState(initialProgress?.step || 0);
+  const [responses, setResponses] = useState(initialProgress?.responses || {});
+  const [score, setScore] = useState(initialProgress?.score || 0);
+  const [answeredCount, setAnsweredCount] = useState(initialProgress?.answeredCount || 0);
 
-const likertOptions = [
-  "Strongly agree",
-  "Agree",
-  "Neutral",
-  "Disagree",
-  "Strongly disagree",
-];
-
-export default function Quiz() {
   const [started, setStarted] = useState(false);
-  const [step, setStep] = useState(0);
-  const [responses, setResponses] = useState({});
+  const [feedback, setFeedback] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const current = quizQuestions[step];
-  const progress = Math.round(((step + 1) / quizQuestions.length) * 100);
+  const navigate = useNavigate();
+
+  const totalQuestions = personalQuestions.length + likertQuestions.length;
+  const progress = Math.round(((step + 1) / totalQuestions) * 100);
+  const allQuestions = [...personalQuestions, ...likertQuestions];
+  const current = allQuestions[step];
+
+  useEffect(() => {
+    const progressData = { step, responses, score, answeredCount };
+    localStorage.setItem("quizProgress", JSON.stringify(progressData));
+  }, [step, responses, score, answeredCount]);
 
   const handleChange = (e) => {
-    setResponses({ ...responses, [current.id]: e.target.value });
+    const { name, value } = e.target;
+    setResponses((prev) => ({ ...prev, [name]: value }));
+    setError("");
+
+    if (step >= personalQuestions.length) {
+      const val = parseInt(value);
+      if (!isNaN(val) && !responses[`scored_${name}`]) {
+        setScore((prev) => prev + val);
+        setAnsweredCount((prev) => prev + 1);
+        setResponses((prev) => ({ ...prev, [`scored_${name}`]: true }));
+        const msg = positiveFeedbacks[Math.floor(Math.random() * positiveFeedbacks.length)];
+        setFeedback(msg);
+        setTimeout(() => setFeedback(""), 1500);
+      }
+    }
   };
 
   const handleNext = () => {
-    if (step < quizQuestions.length - 1) {
+    if (step < personalQuestions.length) {
+      if (!responses[current.id]) {
+        setError("This field is required.");
+        return;
+      }
+      if (current.id === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(responses[current.id])) {
+          setError("Please enter a valid email address.");
+          return;
+        }
+      }
+    }
+
+    if (step + 1 < totalQuestions) {
       setStep(step + 1);
     } else {
-      console.log("Quiz complete:", responses);
-      // TODO: Show summary or navigate to result page
+      localStorage.removeItem("quizProgress");
+      navigate("/review", {
+        state: {
+          responses,
+          score,
+          answeredCount,
+          totalQuestions,
+          allQuestions: [...personalQuestions, ...likertQuestions],
+        },
+      });
     }
   };
 
@@ -57,14 +90,56 @@ export default function Quiz() {
     if (step > 0) setStep(step - 1);
   };
 
-  // 🎯 Start screen
+  const handleReset = () => {
+    localStorage.removeItem("quizProgress");
+    setStarted(false);
+    setStep(0);
+    setResponses({});
+    setScore(0);
+    setAnsweredCount(0);
+    setFeedback("");
+    setError("");
+    setShowConfirmation(false);
+    setIsSubmitting(false);
+  };
+
+  if (!started && initialProgress) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-16">
+        <div className="max-w-xl w-full bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
+          <h1 className="text-3xl font-bold text-gray-800">Resume Quiz?</h1>
+          <p className="text-gray-600">
+            You have unsaved quiz progress. Would you like to continue where you left off?
+          </p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setStarted(true)}
+              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
+            >
+              Resume Quiz
+            </button>
+            <button
+              onClick={() => {
+                localStorage.removeItem("quizProgress");
+                window.location.reload();
+              }}
+              className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400"
+            >
+              Start Over
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!started) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-16">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-16">
         <div className="max-w-xl w-full bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
           <h1 className="text-3xl font-bold text-gray-800">Ready to begin your HELP Quiz?</h1>
           <p className="text-lg text-gray-600">
-            This short quiz will take just a few minutes. It begins with some basic info, followed by a few simple questions.
+            This quiz includes basic questions and a series of simple statements.
           </p>
           <button
             onClick={() => setStarted(true)}
@@ -77,76 +152,77 @@ export default function Quiz() {
     );
   }
 
-  // ✅ The main quiz screen
+  if (isSubmitting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50">
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-lg text-gray-700">Submitting your quiz...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (showConfirmation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-16">
+        <div className="max-w-xl w-full bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
+          <h2 className="text-2xl font-bold text-gray-800">Ready to submit?</h2>
+          <p className="text-gray-600">Make sure you've answered everything as best as you can.</p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => {
+                localStorage.removeItem("quizProgress");
+                setIsSubmitting(true);
+                setTimeout(() => {
+                  navigate("/result", {
+                    state: { responses, score, answeredCount, totalQuestions },
+                  });
+                }, 1200);
+              }}
+              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
+            >
+              Submit Quiz
+            </button>
+            <button
+              onClick={() => setShowConfirmation(false)}
+              className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 flex flex-col items-center">
-      <div className="w-full max-w-xl bg-white rounded-lg shadow-lg p-6 space-y-6">
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-3">
-          <div
-            className="bg-indigo-600 h-3 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-
-        {/* Question content */}
-        <div className="space-y-4">
-          {current.type === "text" || current.type === "email" ? (
-            <div>
-              <label className="block text-lg font-medium text-gray-800 mb-2">
-                {current.label}
-              </label>
-              <input
-                type={current.type}
-                name={current.id}
-                value={responses[current.id] || ""}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-          ) : (
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                {current.question}
-              </h2>
-              <div className="space-y-2">
-                {likertOptions.map((opt) => (
-                  <label
-                    key={opt}
-                    className="block w-full cursor-pointer text-lg bg-gray-100 hover:bg-indigo-100 px-4 py-2 rounded-md border border-gray-300"
-                  >
-                    <input
-                      type="radio"
-                      name={current.id}
-                      value={opt}
-                      checked={responses[current.id] === opt}
-                      onChange={handleChange}
-                      className="mr-2"
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation buttons */}
-        <div className="flex justify-between pt-4">
+    <div className="min-h-screen bg-gradient-to-r from-indigo-50 to-purple-50 py-10 px-4 flex flex-col items-center">
+      <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-8 md:p-10 space-y-6">
+        <div className="flex justify-end mb-2">
           <button
-            onClick={handlePrev}
-            disabled={step === 0}
-            className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
+            onClick={handleReset}
+            className="text-sm text-red-500 hover:underline hover:text-red-700"
           >
-            Previous
-          </button>
-          <button
-            onClick={handleNext}
-            className="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
-          >
-            {step === quizQuestions.length - 1 ? "Finish" : "Next"}
+          Reset Quiz
           </button>
         </div>
+
+        <QuestionBlock
+          current={current}
+          response={responses[current.id]}
+          error={error}
+          feedback={feedback}
+          onChange={handleChange}
+          likertOptions={likertOptions}
+        />
+        <ProgressBar progress={progress} />
+        <NavigationButtons
+          step={step}
+          totalSteps={totalQuestions}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
       </div>
     </div>
   );
