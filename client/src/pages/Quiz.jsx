@@ -18,7 +18,6 @@ export default function QuizPage() {
   const [responses, setResponses] = useState(initialProgress?.responses || {});
   const [score, setScore] = useState(initialProgress?.score || 0);
   const [answeredCount, setAnsweredCount] = useState(initialProgress?.answeredCount || 0);
-
   const [started, setStarted] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [error, setError] = useState("");
@@ -28,9 +27,9 @@ export default function QuizPage() {
   const navigate = useNavigate();
 
   const totalQuestions = personalQuestions.length + likertQuestions.length;
-  const progress = Math.round(((step + 1) / totalQuestions) * 100);
   const allQuestions = [...personalQuestions, ...likertQuestions];
   const current = allQuestions[step];
+  const progress = Math.round(((step + 1) / totalQuestions) * 100);
 
   useEffect(() => {
     const progressData = { step, responses, score, answeredCount };
@@ -80,7 +79,7 @@ export default function QuizPage() {
           score,
           answeredCount,
           totalQuestions,
-          allQuestions: [...personalQuestions, ...likertQuestions],
+          allQuestions,
         },
       });
     }
@@ -105,16 +104,14 @@ export default function QuizPage() {
 
   if (!started && initialProgress) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-16">
-        <div className="max-w-xl w-full bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4 py-16">
+        <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-8 text-center space-y-6">
           <h1 className="text-3xl font-bold text-gray-800">Resume Quiz?</h1>
-          <p className="text-gray-600">
-            You have unsaved quiz progress. Would you like to continue where you left off?
-          </p>
+          <p className="text-gray-600">You have unsaved quiz progress. Continue where you left off?</p>
           <div className="flex justify-center gap-4">
             <button
               onClick={() => setStarted(true)}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
+              className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition"
             >
               Resume Quiz
             </button>
@@ -135,15 +132,13 @@ export default function QuizPage() {
 
   if (!started) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-16">
-        <div className="max-w-xl w-full bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4 py-16">
+        <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-8 text-center space-y-6">
           <h1 className="text-3xl font-bold text-gray-800">Ready to begin your HELP Quiz?</h1>
-          <p className="text-lg text-gray-600">
-            This quiz includes basic questions and a series of simple statements.
-          </p>
+          <p className="text-lg text-gray-600">This quiz includes basic questions and a series of simple statements.</p>
           <button
             onClick={() => setStarted(true)}
-            className="bg-indigo-600 text-white text-lg font-semibold px-6 py-3 rounded-md hover:bg-indigo-700 transition"
+            className="bg-primary text-white text-lg font-semibold px-6 py-3 rounded-md hover:bg-primary-dark transition"
           >
             Start the Quiz
           </button>
@@ -154,57 +149,24 @@ export default function QuizPage() {
 
   if (isSubmitting) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50">
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-lg text-gray-700">Submitting your quiz...</p>
         </div>
       </div>
     );
   }
 
-  if (showConfirmation) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-16">
-        <div className="max-w-xl w-full bg-white rounded-lg shadow-lg p-8 text-center space-y-6">
-          <h2 className="text-2xl font-bold text-gray-800">Ready to submit?</h2>
-          <p className="text-gray-600">Make sure you've answered everything as best as you can.</p>
-          <div className="flex justify-center gap-4">
-            <button
-              onClick={() => {
-                localStorage.removeItem("quizProgress");
-                setIsSubmitting(true);
-                setTimeout(() => {
-                  navigate("/result", {
-                    state: { responses, score, answeredCount, totalQuestions },
-                  });
-                }, 1200);
-              }}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
-            >
-              Submit Quiz
-            </button>
-            <button
-              onClick={() => setShowConfirmation(false)}
-              className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400"
-            >
-              Go Back
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-50 to-purple-50 py-10 px-4 flex flex-col items-center">
-      <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-8 md:p-10 space-y-6">
+    <div className="min-h-screen bg-neutral-50 py-10 px-4 flex flex-col items-center">
+      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8 md:p-10 space-y-6">
         <div className="flex justify-end mb-2">
           <button
             onClick={handleReset}
             className="text-sm text-red-500 hover:underline hover:text-red-700"
           >
-          Reset Quiz
+            Reset Quiz
           </button>
         </div>
 

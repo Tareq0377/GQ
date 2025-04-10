@@ -8,29 +8,30 @@ export default function ReviewAnswers() {
 
   if (!responses || !allQuestions) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">No data to review. Please complete the quiz first.</p>
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 font-sans">
+        <p className="text-gray-600 text-center">No data to review. Please complete the quiz first.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-50 to-purple-50 py-10 px-4 flex flex-col items-center">
-      <div className="max-w-3xl w-full bg-white rounded-lg shadow-md p-8 space-y-6">
-        <h1 className="text-2xl font-bold text-gray-800 text-center">Review Your Answers</h1>
-        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+    <div className="min-h-screen bg-neutral-50 py-10 px-4 flex flex-col items-center font-sans">
+      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-lg p-8 space-y-6">
+        <h1 className="text-3xl font-bold text-primary-dark text-center">Review Your Answers</h1>
+
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto px-1">
           {allQuestions.map((q) => (
-            <div key={q.id} className="bg-gray-100 p-4 rounded-md">
+            <div key={q.id} className="bg-gray-100 p-4 rounded-md border border-gray-200">
               <p className="text-sm text-gray-500">{q.label || q.question}</p>
-              <p className="text-base font-semibold text-gray-800">{responses[q.id] || "Not answered"}</p>
+              <p className="text-base font-medium text-gray-800 mt-1">{responses[q.id] || "Not answered"}</p>
             </div>
           ))}
         </div>
 
-        <div className="flex justify-between mt-6">
+        <div className="flex justify-center gap-4 pt-6">
           <button
             onClick={() => navigate(-1)}
-            className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400"
+            className="bg-gray-300 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-400 transition"
           >
             Go Back
           </button>
@@ -40,9 +41,9 @@ export default function ReviewAnswers() {
                 state: { responses, score, answeredCount, totalQuestions },
               })
             }
-            className="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700"
+            className="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-dark transition"
           >
-            Submit
+            Submit Quiz
           </button>
         </div>
       </div>

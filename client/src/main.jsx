@@ -1,3 +1,5 @@
+import "@fontsource/nunito/400.css";  // Regular weight
+import "@fontsource/nunito/700.css";  // Bold weight (optional)
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';

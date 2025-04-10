@@ -12,7 +12,7 @@ const QuestionBlock = ({ current, response, error, feedback, onChange, likertOpt
           name={current.id}
           value={response || ""}
           onChange={onChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-primary"
         />
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
       </div>
@@ -29,7 +29,7 @@ const QuestionBlock = ({ current, response, error, feedback, onChange, likertOpt
           name={current.id}
           value={response || ""}
           onChange={onChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md text-lg focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <option value="">-- Select State --</option>
           {current.options.map((opt) => (
@@ -50,7 +50,8 @@ const QuestionBlock = ({ current, response, error, feedback, onChange, likertOpt
         {likertOptions.map((opt) => (
           <label
             key={opt.value}
-            className="flex items-center space-x-2 bg-gray-100 hover:bg-indigo-100 px-4 py-2 rounded-md border border-gray-300 cursor-pointer"
+            className={`flex items-center space-x-3 px-4 py-2 rounded-lg border border-gray-200 
+            bg-gray-50 hover:bg-primary-light transition cursor-pointer`}
           >
             <input
               type="radio"
@@ -58,12 +59,13 @@ const QuestionBlock = ({ current, response, error, feedback, onChange, likertOpt
               value={opt.value}
               checked={response == opt.value}
               onChange={onChange}
+              className="form-radio text-primary focus:ring-primary"
             />
-            <span className="text-lg">{opt.text}</span>
+            <span className="text-lg text-gray-800">{opt.text}</span>
           </label>
         ))}
       </div>
-      {feedback && <p className="text-green-500 pt-2">{feedback}</p>}
+      {feedback && <p className="text-green-600 pt-3 text-sm">{feedback}</p>}
     </div>
   );
 };
