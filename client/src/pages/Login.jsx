@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import Input from '../components/Input'
+import Input from '../components/Input';
 
-function Login() {
+export default function Login() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', password: '' });
 
   const handleChange = (e) => {
@@ -12,74 +14,82 @@ function Login() {
 
   const handleFormLogin = (e) => {
     e.preventDefault();
-    console.log("Username:", form.username, "Password:", form.password);
-    // TODO: Replace with real authentication
+    const user = {
+      name: form.username,
+      email: `${form.username}@helpendoflife.org`,
+      role: "user"
+    };
+    localStorage.setItem("user", JSON.stringify(user));
+    window.location.href = "/quiz";
   };
 
   const handleGoogleLogin = (credentialResponse) => {
     const userInfo = jwtDecode(credentialResponse.credential);
-    localStorage.setItem("user", JSON.stringify(userInfo));
-    window.location.href = "/";
+    const user = {
+      name: userInfo.name,
+      email: userInfo.email,
+      picture: userInfo.picture,
+      role: "user"
+    };
+    localStorage.setItem("user", JSON.stringify(user));
+    window.location.href = "/quiz";
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-16">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Login to HELP</h2>
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4 py-16 font-sans">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8 space-y-6">
+        <h2 className="text-3xl font-bold text-center text-primary-dark">Login to HELP</h2>
 
-        {/* Username/Password Form */}
         <form onSubmit={handleFormLogin} className="space-y-4">
-          {/* <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-            <input
-              type="text"
-              name="username"
-              id="username"
-              value={form.username}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            />
-          </div> */}
-          <Input label={'username'} type={'text'} name={'username'} id={'username'} value={form.username} onChange={handleChange} required={true}/>
-          {/* <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              required
-            />
-          </div> */}
-          <Input label={'password'} type={'text'} name={'password'} id={'password'} value={form.password} onChange={handleChange} required={true}/>
+          <Input
+            label="Username"
+            type="text"
+            name="username"
+            id="username"
+            value={form.username}
+            onChange={handleChange}
+            required
+          />
+          <Input
+            label="Password"
+            type="password"
+            name="password"
+            id="password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
+            className="w-full bg-primary text-white py-2 rounded-md hover:bg-primary-dark transition font-medium"
           >
             Sign In
           </button>
         </form>
 
-        {/* Divider */}
         <div className="flex items-center my-6">
-          <div className="flex-grow h-px bg-gray-300"></div>
+          <div className="flex-grow h-px bg-gray-300" />
           <span className="mx-4 text-sm text-gray-500">OR</span>
-          <div className="flex-grow h-px bg-gray-300"></div>
+          <div className="flex-grow h-px bg-gray-300" />
         </div>
 
-        {/* Google Sign-In */}
         <div className="flex justify-center">
           <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={() => console.log("Google Login Failed")}
           />
         </div>
+
+        <div className="text-sm text-center text-gray-500 pt-4">
+          Don’t have an account?{' '}
+          <button
+            onClick={() => navigate('/signup')}
+            className="text-primary hover:underline font-medium"
+          >
+            Sign Up
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
-export default Login;
