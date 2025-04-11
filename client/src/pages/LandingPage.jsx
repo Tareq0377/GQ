@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import HeroCarousel from "../components/HeroCarousel";
 
 export default function LandingPage() {
   return (
@@ -31,49 +32,40 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Carousel Placeholder */}
-      <section className="px-6 pb-10">
-        <div className="max-w-5xl mx-auto">
-          <div className="rounded-2xl h-52 bg-gradient-to-r from-[#4aa69d] to-[#78c5b6] flex items-center justify-center text-white text-xl">
-            Image Carousel Placeholder
-          </div>
-          <div className="flex justify-center mt-4 gap-2">
-            <span className="h-2 w-2 rounded-full bg-white/70"></span>
-            <span className="h-2 w-2 rounded-full bg-white/30"></span>
-            <span className="h-2 w-2 rounded-full bg-white/30"></span>
-          </div>
-        </div>
-      </section>
+      {/* Carousel Section */}
+      <HeroCarousel />
 
       {/* Resources Section */}
-      <section className="px-6 pb-20">
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-12 text-[#1a3a3a]">Resources</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <section className="py-20 bg-neutral-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-primary-dark mb-12">
+            Helpful Resources
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                icon: "💡",
-                title: "Guides & Articles",
-                desc: "Learn about end-of-life planning",
+                emoji: "📘",
+                title: "Planning Toolkit",
+                desc: "Download a step-by-step guide to advance care planning.",
               },
               {
-                icon: "💚",
-                title: "Support Services",
-                desc: "Access local national support",
+                emoji: "⚖️",
+                title: "Legal Support",
+                desc: "Access resources on wills, power of attorney, and rights.",
               },
               {
-                icon: "📅",
-                title: "Workshops & Events",
-                desc: "Join our educational events",
+                emoji: "🧘‍♀️",
+                title: "Emotional Support",
+                desc: "Find local support groups or talk to trained facilitators.",
               },
-            ].map((item, i) => (
+            ].map((item, index) => (
               <div
-                key={i}
-                className="bg-white p-6 rounded-xl shadow hover:shadow-md transition text-center"
+                key={index}
+                className="bg-white p-6 rounded-2xl shadow-md hover:shadow-lg transition duration-300 flex flex-col items-center text-center"
               >
-                <div className="text-4xl mb-3">{item.icon}</div>
-                <h3 className="text-lg font-semibold mb-1 text-[#1f3d3d]">{item.title}</h3>
-                <p className="text-sm text-[#4d5c5c]">{item.desc}</p>
+                <div className="text-5xl mb-4">{item.emoji}</div>
+                <h3 className="text-xl font-semibold text-primary mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600">{item.desc}</p>
               </div>
             ))}
           </div>

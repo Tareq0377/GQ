@@ -2,7 +2,7 @@
 
 HELP is a full-stack web app designed to assess and improve individuals’ death literacy — the practical knowledge and confidence to make informed end-of-life decisions.
 
-This project was developed as part of the CSE5IDP Capstone at [Your University], in collaboration with an industry client and aligned with research goals in palliative care and community well-being.
+This project was developed as part of the CSE5IDP Capstone at La Trobe University, in collaboration with an industry client and aligned with research goals in palliative care and community well-being.
 
 ## 🌐 Live Demo
 [Add your link here once deployed]
