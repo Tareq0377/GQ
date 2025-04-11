@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavigationButtons from "../components/NavigationButtons";
@@ -11,8 +12,12 @@ import {
 } from "../data/Quizdata";
 
 export default function QuizPage() {
+  const location = useLocation();
+  const reviewStep = location.state?.goToStep;
+  const resumeData = location.state?.resumeData;
   const savedProgress = localStorage.getItem("quizProgress");
-  const initialProgress = savedProgress ? JSON.parse(savedProgress) : null;
+  const initialProgress = resumeData || (savedProgress ? JSON.parse(savedProgress) : null);
+  
 
   const [step, setStep] = useState(initialProgress?.step || 0);
   const [responses, setResponses] = useState(initialProgress?.responses || {});
@@ -25,6 +30,15 @@ export default function QuizPage() {
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (reviewStep !== undefined && !started) {
+      setStarted(true);
+      setStep(reviewStep);
+      // Optional: clear the history state
+      window.history.replaceState(null, "");
+    }
+  }, [reviewStep]);
 
   const totalQuestions = personalQuestions.length + likertQuestions.length;
   const allQuestions = [...personalQuestions, ...likertQuestions];
@@ -160,32 +174,70 @@ export default function QuizPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 py-10 px-4 flex flex-col items-center">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-lg p-8 md:p-10 space-y-6">
-        <div className="flex justify-end mb-2">
-          <button
-            onClick={handleReset}
-            className="text-sm text-red-500 hover:underline hover:text-red-700"
-          >
-            Reset Quiz
-          </button>
+      <div className="w-full max-w-6xl bg-white rounded-2xl shadow-lg p-8 md:p-10 grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-8">
+        
+        {/* Left Column - Main Quiz Content */}
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600 font-medium">
+              Question {step + 1} of {totalQuestions}
+            </div>
+            <button
+              onClick={handleReset}
+              className="text-sm text-red-500 hover:underline hover:text-red-700"
+            >
+              Reset Quiz
+            </button>
+          </div>
+  
+          <QuestionBlock
+            current={current}
+            response={responses[current.id]}
+            error={error}
+            feedback={feedback}
+            onChange={handleChange}
+            likertOptions={likertOptions}
+          />
+          <ProgressBar progress={progress} />
+          <NavigationButtons
+            step={step}
+            totalSteps={totalQuestions}
+            onPrev={handlePrev}
+            onNext={handleNext}
+          />
         </div>
+  
+        {/* Right Column - Tracker */}
+        <div className="hidden md:block">
+          <h3 className="text-sm font-semibold text-gray-700 mb-2">Answered Tracker</h3>
+          <div className="grid grid-cols-5 gap-2">
+          {allQuestions.map((q, idx) => {
+            const answered = responses[q.id];
+            const allAnswered = allQuestions.every((question) => responses[question.id]);
 
-        <QuestionBlock
-          current={current}
-          response={responses[current.id]}
-          error={error}
-          feedback={feedback}
-          onChange={handleChange}
-          likertOptions={likertOptions}
-        />
-        <ProgressBar progress={progress} />
-        <NavigationButtons
-          step={step}
-          totalSteps={totalQuestions}
-          onPrev={handlePrev}
-          onNext={handleNext}
-        />
+            const isClickable = allAnswered; // Change this logic if you want stricter rules
+
+            return (
+              <button
+                key={q.id}
+                onClick={() => isClickable && setStep(idx)}
+                disabled={!isClickable}
+                className={`h-8 w-8 rounded-full text-xs flex items-center justify-center font-bold transition
+                  ${answered ? "bg-primary text-white" : "bg-gray-200 text-gray-500"}
+                  ${isClickable ? "hover:scale-105 cursor-pointer" : "opacity-50 cursor-not-allowed"}`}
+                title={
+                  isClickable
+                    ? `Go to Question ${idx + 1}`
+                    : `Complete all questions to navigate`
+                }
+              >
+                {idx + 1}
+              </button>
+            );
+          })}
+          </div>
+        </div>
       </div>
     </div>
-  );
+  );  
 }

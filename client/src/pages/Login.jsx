@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import Input from '../components/Input';
 
 export default function Login() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({ username: '', password: '' });
 
   const handleChange = (e) => {
@@ -12,14 +14,25 @@ export default function Login() {
 
   const handleFormLogin = (e) => {
     e.preventDefault();
-    console.log("Username:", form.username, "Password:", form.password);
-    // TODO: Replace with real authentication
+    const user = {
+      name: form.username,
+      email: `${form.username}@helpendoflife.org`,
+      role: "user"
+    };
+    localStorage.setItem("user", JSON.stringify(user));
+    window.location.href = "/quiz";
   };
 
   const handleGoogleLogin = (credentialResponse) => {
     const userInfo = jwtDecode(credentialResponse.credential);
-    localStorage.setItem("user", JSON.stringify(userInfo));
-    window.location.href = "/";
+    const user = {
+      name: userInfo.name,
+      email: userInfo.email,
+      picture: userInfo.picture,
+      role: "user"
+    };
+    localStorage.setItem("user", JSON.stringify(user));
+    window.location.href = "/quiz";
   };
 
   return (
@@ -65,6 +78,16 @@ export default function Login() {
             onSuccess={handleGoogleLogin}
             onError={() => console.log("Google Login Failed")}
           />
+        </div>
+
+        <div className="text-sm text-center text-gray-500 pt-4">
+          Don’t have an account?{' '}
+          <button
+            onClick={() => navigate('/signup')}
+            className="text-primary hover:underline font-medium"
+          >
+            Sign Up
+          </button>
         </div>
       </div>
     </div>
